@@ -14,6 +14,17 @@ public class CustomConverters extends Converters {
     }
 
     @Override
+    public boolean isRegistered(final Class<? extends TypeConverter> tcClass) {
+        return super.isRegistered(tcClass) || defaultConverters.isRegistered(tcClass);
+    }
+
+    @Override
+    public void removeConverter(final TypeConverter tc) {
+        super.removeConverter(tc);
+        defaultConverters.removeConverter(tc);
+    }
+
+    @Override
     protected TypeConverter getEncoder(final Class c) {
         TypeConverter encoder = super.getEncoder(c);
         if (encoder == null) {

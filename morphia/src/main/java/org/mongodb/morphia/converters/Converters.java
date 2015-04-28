@@ -23,6 +23,7 @@ public abstract class Converters {
     private final Mapper mapper;
     private final List<TypeConverter> untypedTypeEncoders = new LinkedList<TypeConverter>();
     private final Map<Class, List<TypeConverter>> tcMap = new ConcurrentHashMap<Class, List<TypeConverter>>();
+    private final List<Class<? extends TypeConverter>> registeredConverterClasses = new ArrayList<Class<? extends TypeConverter>>();
 
     public Converters(final Mapper mapper) {
         this.mapper = mapper;
@@ -44,6 +45,7 @@ public abstract class Converters {
             untypedTypeEncoders.add(tc);
         }
 
+        registeredConverterClasses.add(tc.getClass());
         tc.setMapper(mapper);
 
         return tc;
@@ -175,7 +177,7 @@ public abstract class Converters {
     }
 
     public boolean isRegistered(final Class<? extends TypeConverter> tcClass) {
-        return tcMap.entrySet().contains(tcClass);
+        return registeredConverterClasses.contains(tcClass);
     }
 
     /**
@@ -184,6 +186,7 @@ public abstract class Converters {
     public void removeConverter(final TypeConverter tc) {
         if (tc.getSupportedTypes() == null) {
             untypedTypeEncoders.remove(tc);
+            registeredConverterClasses.remove(tc.getClass());
         } else {
             for (final Entry<Class, List<TypeConverter>> entry : tcMap.entrySet()) {
                 List<TypeConverter> list = entry.getValue();
@@ -194,6 +197,7 @@ public abstract class Converters {
                     tcMap.remove(entry.getKey());
                 }
             }
+            registeredConverterClasses.remove(tc.getClass());
         }
 
     }

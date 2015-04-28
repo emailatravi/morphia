@@ -167,24 +167,10 @@ public class Mapper {
      * Add MappedClass to internal cache, possibly validating first.
      */
     private MappedClass addMappedClass(final MappedClass mc, final boolean validate) {
+        addConverters(mc);
+
         if (validate) {
             mc.validate();
-        }
-
-        final List<Annotation> convertersList = mc.getAnnotations(Converters.class);
-        if (convertersList != null) {
-            
-            for (Annotation a : convertersList) {
-                final Converters c = (Converters) a;
-                if (c != null) {
-                    for (final Class<? extends TypeConverter> clazz : c.value()) {
-                        if (!getConverters().isRegistered(clazz)) {
-                            getConverters().addConverter(clazz);
-                        }
-                    }
-                }
-            }
-        
         }
 
         mappedClasses.put(mc.getClazz().getName(), mc);
@@ -201,6 +187,23 @@ public class Mapper {
         mcs.add(mc);
 
         return mc;
+    }
+
+    private void addConverters(final MappedClass mc) {
+        final List<Annotation> convertersList = mc.getAnnotations(Converters.class);
+        if (convertersList != null) {
+            for (Annotation a : convertersList) {
+                final Converters c = (Converters) a;
+                if (c != null) {
+                    for (final Class<? extends TypeConverter> clazz : c.value()) {
+                        if (!getConverters().isRegistered(clazz)) {
+                            getConverters().addConverter(clazz);
+                        }
+                    }
+                }
+            }
+        
+        }
     }
 
     /**

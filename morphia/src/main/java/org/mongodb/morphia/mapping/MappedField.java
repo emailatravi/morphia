@@ -98,7 +98,7 @@ public class MappedField {
     public MappedField(final Type type, final Mapper mapper) {
         this.mapper = mapper;
         genericType = type;
-        discover();
+        discoverType();
     }
 
     public static void addInterestingAnnotation(final Class<? extends Annotation> annotation) {
