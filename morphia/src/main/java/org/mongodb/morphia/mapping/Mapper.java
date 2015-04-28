@@ -31,7 +31,7 @@ import org.mongodb.morphia.annotations.PreSave;
 import org.mongodb.morphia.annotations.Property;
 import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.annotations.Serialized;
-import org.mongodb.morphia.converters.DefaultConverters;
+import org.mongodb.morphia.converters.CustomConverters;
 import org.mongodb.morphia.converters.TypeConverter;
 import org.mongodb.morphia.logging.Logger;
 import org.mongodb.morphia.logging.MorphiaLoggerFactory;
@@ -108,10 +108,10 @@ public class Mapper {
     // TODO: make these configurable
     private final LazyProxyFactory proxyFactory = LazyFeatureDependencies.createDefaultProxyFactory();
     private DatastoreProvider datastoreProvider = new DefaultDatastoreProvider();
-    private final DefaultConverters converters = new DefaultConverters();
+    private final org.mongodb.morphia.converters.Converters converters;
 
     public Mapper() {
-        getConverters().setMapper(this);
+        converters = new CustomConverters(this);
     }
 
     public Mapper(final MapperOptions opts) {
@@ -161,16 +161,7 @@ public class Mapper {
             return addMappedClass(mappedClass, true);
         }
         return mappedClass;
-//        return addMappedClass(new MappedClass(c, this), true);
     }
-
-    /**
-     * Validates MappedClass and adds to internal cache.
-     */
-    public MappedClass addMappedClass(final MappedClass mc) {
-        return addMappedClass(mc, true);
-    }
-
 
     /**
      * Add MappedClass to internal cache, possibly validating first.
@@ -332,7 +323,7 @@ public class Mapper {
         final Object newObj = getConverters().encode(origClass, javaObj);
         if (newObj == null) {
             LOG.warning("converted " + javaObj + " to null");
-            return newObj;
+            return null;
         }
         final Class type = newObj.getClass();
         final boolean bSameType = origClass.equals(type);
@@ -660,8 +651,7 @@ public class Mapper {
 
     }
 
-    // TODO might be better to expose via some "options" object?
-    public DefaultConverters getConverters() {
+    public org.mongodb.morphia.converters.Converters getConverters() {
         return converters;
     }
 
