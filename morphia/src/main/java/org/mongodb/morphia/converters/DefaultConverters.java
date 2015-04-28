@@ -16,18 +16,12 @@ import org.mongodb.morphia.mapping.Mapper;
  * @author scotthernandez
  */
 public class DefaultConverters extends Converters {
-    private final PassthroughConverter passthroughConverter;
+    private final IdentityConverter identityConverter;
     private final SerializedObjectConverter serializedConverter;
 
     public DefaultConverters(final Mapper mapper) {
         super(mapper);
-        // some converters are commented out since the pass-through converter is enabled, at the end of the list.
-        // Re-enable them if that changes.
-        // addConverter(new PassthroughConverter(DBRef.class));
-
-        //Pass-through DBObject or else the MapOfValuesConverter will process it.
-        addConverter(new PassthroughConverter(DBObject.class, BasicDBObject.class));
-        //Pass-through byte[] for the driver to handle
+        addConverter(new IdentityConverter(DBObject.class, BasicDBObject.class));
         addConverter(new EnumSetConverter());
         addConverter(new EnumConverter());
         addConverter(new StringConverter());
@@ -60,8 +54,18 @@ public class DefaultConverters extends Converters {
         addConverter(new GeometryConverter());
 
         //generic converter that will just pass things through.
-        passthroughConverter = new PassthroughConverter();
+        identityConverter = new IdentityConverter();
         serializedConverter = new SerializedObjectConverter();
+    }
+
+    @Override
+    protected TypeConverter getEncoder(final Class c) {
+        TypeConverter encoder = super.getEncoder(c);
+
+        if (encoder == null && identityConverter.canHandle(c)) {
+            encoder = identityConverter;
+        }
+        return encoder;
     }
 
     @Override
@@ -71,19 +75,9 @@ public class DefaultConverters extends Converters {
         }
 
         TypeConverter encoder = super.getEncoder(val, mf);
-        if (encoder == null && (passthroughConverter.canHandle(mf) 
-                                || (val != null && passthroughConverter.isSupported(val.getClass(), mf)))) {
-            encoder = passthroughConverter;
-        }
-        return encoder;
-    }
-
-    @Override
-    protected TypeConverter getEncoder(final Class c) {
-        TypeConverter encoder = super.getEncoder(c);
-
-        if (encoder == null && passthroughConverter.canHandle(c)) {
-            encoder = passthroughConverter;
+        if (encoder == null && (identityConverter.canHandle(mf)
+                                || (val != null && identityConverter.isSupported(val.getClass(), mf)))) {
+            encoder = identityConverter;
         }
         return encoder;
     }

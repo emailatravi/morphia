@@ -125,7 +125,7 @@ public abstract class Converters {
             tcs = tcMap.get(val.getClass());
         }
 
-        if (tcs == null || (!tcs.isEmpty() && tcs.get(0) instanceof PassthroughConverter)) {
+        if (tcs == null || (!tcs.isEmpty() && tcs.get(0) instanceof IdentityConverter)) {
             tcs = tcMap.get(mf.getType());
         }
 
@@ -147,12 +147,12 @@ public abstract class Converters {
 
     public boolean hasDbObjectConverter(final MappedField c) {
         final TypeConverter converter = getEncoder(c);
-        return converter != null && !(converter instanceof PassthroughConverter) && !(converter instanceof SimpleValueConverter);
+        return converter != null && !(converter instanceof IdentityConverter) && !(converter instanceof SimpleValueConverter);
     }
 
     public boolean hasDbObjectConverter(final Class c) {
         final TypeConverter converter = getEncoder(c);
-        return converter != null && !(converter instanceof PassthroughConverter) && !(converter instanceof SimpleValueConverter);
+        return converter != null && !(converter instanceof IdentityConverter) && !(converter instanceof SimpleValueConverter);
     }
 
     public boolean hasSimpleValueConverter(final Object o) {
