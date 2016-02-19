@@ -17,8 +17,6 @@
 package org.mongodb.morphia.converters;
 
 
-import org.mongodb.morphia.logging.Logger;
-import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.mapping.MappedField;
 
 import java.time.Period;
@@ -28,10 +26,6 @@ import java.time.Period;
  *
  */
 public class PeriodConverter extends TypeConverter implements SimpleValueConverter {
-    private static final Logger LOG = MorphiaLoggerFactory.get(PeriodConverter.class);
-    public static final String CAN_T_CONVERT = "Can't convert to Period from ";
-
-
     /**
      * Creates the Converter.
      */
@@ -53,7 +47,7 @@ public class PeriodConverter extends TypeConverter implements SimpleValueConvert
             return Period.parse(((String) val));
         }
 
-        throw new IllegalArgumentException(CAN_T_CONVERT + val);
+        throw new IllegalArgumentException("Can't convert to Period from " + val);
     }
 
     @Override
@@ -61,6 +55,6 @@ public class PeriodConverter extends TypeConverter implements SimpleValueConvert
         if (value == null) {
             return null;
         }
-        return ((Period) value).toString();
+        return value.toString();
     }
 }
