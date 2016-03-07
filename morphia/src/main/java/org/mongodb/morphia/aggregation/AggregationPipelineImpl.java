@@ -116,7 +116,12 @@ public class AggregationPipelineImpl implements AggregationPipeline {
     public AggregationPipeline group(final List<Group> id, final Group... groupings) {
         DBObject idGroup = new BasicDBObject();
         for (Group group : id) {
-            idGroup.put(group.getName(), group.getSourceField());
+            if (group.getAccumulator() != null) {
+                Accumulator accumulator = group.getAccumulator();
+                idGroup.put(group.getName(), new BasicDBObject(accumulator.getOperation(), accumulator.getField()));
+            } else {
+                idGroup.put(group.getName(), group.getSourceField());
+            }
         }
         DBObject group = new BasicDBObject("_id", idGroup);
         for (Group grouping : groupings) {
